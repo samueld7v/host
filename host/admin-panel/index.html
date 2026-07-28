@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KeyAuth Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { 50: '#f8fafc', 100: '#1e1e2e', 200: '#2a2a3e', 300: '#3a3a52', 400: '#6c6c8a', 500: '#a0a0b8', 600: '#c0c0d0', 700: '#e0e0ec', 800: '#0f0f1a', 900: '#0a0a14' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #0a0a14; color: #e0e0ec; overflow-x: hidden; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1e1e2e; }
+        ::-webkit-scrollbar-thumb { background: #3a3a52; border-radius: 3px; }
+        .card { background: #1e1e2e; border: 1px solid #2a2a3e; border-radius: 12px; padding: 1.5rem; transition: all 0.2s; }
+        .card:hover { border-color: #3a3a52; }
+        .stat-value { font-size: 2rem; font-weight: 700; line-height: 1; }
+        .status-active { color: #22c55e; }
+        .status-expired { color: #f59e0b; }
+        .status-banned { color: #ef4444; }
+        .status-unused { color: #6b7280; }
+        .btn { padding: 0.5rem 1rem; border-radius: 8px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; font-size: 0.875rem; }
+        .btn-primary { background: #3b82f6; color: white; }
+        .btn-primary:hover { background: #2563eb; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-success { background: #22c55e; color: white; }
+        .btn-success:hover { background: #16a34a; }
+        .btn-warning { background: #f59e0b; color: black; }
+        .btn-warning:hover { background: #d97706; }
+        .btn-ghost { background: transparent; color: #a0a0b8; border: 1px solid #2a2a3e; }
+        .btn-ghost:hover { background: #2a2a3e; color: #e0e0ec; }
+        .btn-sm { padding: 0.25rem 0.75rem; font-size: 0.8rem; }
+        .input { background: #0f0f1a; border: 1px solid #2a2a3e; border-radius: 8px; padding: 0.625rem 1rem; color: #e0e0ec; width: 100%; outline: none; }
+        .input:focus { border-color: #3b82f6; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 0.75rem 1rem; color: #6c6c8a; font-weight: 500; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #2a2a3e; }
+        td { padding: 0.75rem 1rem; border-bottom: 1px solid #1a1a2a; font-size: 0.875rem; }
+        tr:hover td { background: #2a2a3e40; }
+        .badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+        .badge-active { background: #22c55e20; color: #22c55e; }
+        .badge-expired { background: #f59e0b20; color: #f59e0b; }
+        .badge-banned { background: #ef444420; color: #ef4444; }
+        .badge-unused { background: #6b728020; color: #6b7280; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .modal { background: #1e1e2e; border: 1px solid #2a2a3e; border-radius: 16px; padding: 2rem; width: 90%; max-width: 520px; max-height: 90vh; overflow-y: auto; }
+        .toast { position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.5rem; border-radius: 12px; color: white; font-weight: 500; z-index: 2000; opacity: 0; transform: translateY(1rem); transition: all 0.3s; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast-success { background: #22c55e; }
+        .toast-error { background: #ef4444; }
+        .toast-info { background: #3b82f6; }
+        .sidebar { width: 260px; height: 100vh; position: fixed; left: 0; top: 0; background: #0f0f1a; border-right: 1px solid #1e1e2e; padding: 1.5rem; overflow-y: auto; z-index: 100; }
+        .main { margin-left: 260px; padding: 2rem; min-height: 100vh; }
+        .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 10px; color: #6c6c8a; cursor: pointer; transition: all 0.15s; margin-bottom: 0.25rem; }
+        .nav-item:hover, .nav-item.active { background: #2a2a3e; color: #e0e0ec; }
+        .nav-item.active { color: #3b82f6; }
+        .skeleton { background: linear-gradient(90deg, #1e1e2e 25%, #2a2a3e 50%, #1e1e2e 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .main { margin-left: 0; } }
+        .copy-btn { cursor: pointer; }
+        .copy-btn:hover { color: #3b82f6; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+    <div id="toast" class="toast"></div>
+
+    <script>
+    const API = window.location.origin + '/api';
+    let token = localStorage.getItem('admin_token');
+    let adminUser = null;
+    let currentPage = 'dashboard';
+
+    function toast(message, type = 'info') {
+        const el = document.getElementById('toast');
+        el.textContent = message;
+        el.className = `toast toast-${type} show`;
+        setTimeout(() => el.classList.remove('show'), 3000);
+    }
+
+    async function apiCall(path, options = {}) {
+        const headers = { 'Content-Type': 'application/json', ...options.headers };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const res = await fetch(API + path, { ...options, headers });
+        const data = await res.json();
+        if (!res.ok && data.error === 'Invalid or expired token') {
+            token = null; localStorage.removeItem('admin_token');
+            renderApp();
+            throw new Error(data.error);
+        }
+        if (!res.ok) throw new Error(data.error || 'Request failed');
+        return data;
+    }
+
+    async function login(username, password) {
+        const data = await apiCall('/admin/login', {
+            method: 'POST', body: JSON.stringify({ username, password })
+        });
+        token = data.token;
+        adminUser = data.admin;
+        localStorage.setItem('admin_token', token);
+        renderApp();
+    }
+
+    function logout() {
+        token = null; adminUser = null;
+        localStorage.removeItem('admin_token');
+        renderApp();
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '—';
+        const d = new Date(dateStr + 'Z');
+        return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+    }
+
+    function timeLeft(expiresAt) {
+        if (!expiresAt) return { text: '—', cls: '' };
+        const diff = new Date(expiresAt + 'Z') - new Date();
+        if (diff <= 0) return { text: 'Expirado', cls: 'status-expired' };
+        const days = Math.floor(diff / 86400000);
+        const hours = Math.floor((diff % 86400000) / 3600000);
+        if (days > 0) return { text: `${days}d ${hours}h`, cls: 'status-active' };
+        if (hours > 0) return { text: `${hours}h`, cls: 'status-active' };
+        const mins = Math.floor(diff / 60000);
+        return { text: `${mins}min`, cls: 'status-warning' };
+    }
+
+    function truncate(str, len = 16) {
+        if (!str) return '—';
+        return str.length > len ? str.substring(0, len) + '...' : str;
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => toast('Copiado!', 'success'));
+    }
+
+    // ----- Modals -----
+    function showModal(id) { document.getElementById(id).classList.add('active'); }
+    function hideModal(id) { document.getElementById(id).classList.remove('active'); }
+
+    // ----- Router -----
+    function navigate(page) { currentPage = page; renderApp(); }
+
+    // ----- Renderers -----
+    function renderLoginPage() {
+        return `
+            <div class="min-h-screen flex items-center justify-center p-4">
+                <div class="card max-w-md w-full">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-blue-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-shield-halved text-3xl text-blue-400"></i>
+                        </div>
+                        <h1 class="text-2xl font-bold">KeyAuth Panel</h1>
+                        <p class="text-gray-400 mt-1">Sistema de Autenticação</p>
+                    </div>
+                    <form id="loginForm" class="space-y-4">
+                        <div>
+                            <label class="text-sm text-gray-400 mb-1 block">Usuário</label>
+                            <input name="username" class="input" placeholder="admin" required>
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray-400 mb-1 block">Senha</label>
+                            <input name="password" type="password" class="input" placeholder="••••••" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-full py-2.5">Entrar</button>
+                    </form>
+                    <p class="text-center text-xs text-gray-500 mt-4">Key Auth System v2.0</p>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderSidebar() {
+        const pages = [
+            { id: 'dashboard', icon: 'fa-chart-pie', label: 'Dashboard' },
+            { id: 'keys', icon: 'fa-key', label: 'Chaves' },
+            { id: 'logs', icon: 'fa-list', label: 'Logs' },
+            { id: 'settings', icon: 'fa-gear', label: 'Configurações' }
+        ];
+        return `
+            <div class="sidebar" id="sidebar">
+                <div class="flex items-center gap-3 mb-8 px-2">
+                    <div class="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-shield-halved text-blue-400"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-sm">KeyAuth</h2>
+                        <p class="text-xs text-gray-500">Painel Admin</p>
+                    </div>
+                </div>
+                <nav>
+                    ${pages.map(p => `
+                        <div class="nav-item ${currentPage === p.id ? 'active' : ''}" onclick="navigate('${p.id}')">
+                            <i class="fas ${p.icon}"></i>
+                            <span>${p.label}</span>
+                        </div>
+                    `).join('')}
+                </nav>
+                <div class="absolute bottom-6 left-4 right-4">
+                    <div class="flex items-center gap-3 px-2 mb-3">
+                        <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-xs font-bold">${(adminUser?.username || 'A')[0].toUpperCase()}</div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium truncate">${adminUser?.username || 'Admin'}</p>
+                            <p class="text-xs text-gray-500">${adminUser?.role || 'admin'}</p>
+                        </div>
+                    </div>
+                    <button onclick="logout()" class="btn btn-ghost w-full text-sm"><i class="fas fa-right-from-bracket mr-2"></i>Sair</button>
+                </div>
+                <button class="md:hidden absolute top-4 right-4 text-gray-400" onclick="document.getElementById('sidebar').classList.remove('open')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+    }
+
+    function renderDashboard() {
+        return `
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold">Dashboard</h1>
+                    <p class="text-gray-400 text-sm">Visão geral do sistema</p>
+                </div>
+                <button class="btn btn-ghost btn-sm" onclick="refreshDashboard()"><i class="fas fa-rotate mr-1"></i>Atualizar</button>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8" id="statsGrid">
+                ${Array(6).fill(0).map(() => '<div class="card"><div class="skeleton h-4 w-20 mb-2"></div><div class="skeleton h-8 w-16"></div></div>').join('')}
+            </div>
+            <div class="card mb-6">
+                <h2 class="text-lg font-semibold mb-4">Logs Recentes</h2>
+                <div id="recentLogs"><p class="text-gray-500 text-sm">Carregando...</p></div>
+            </div>
+        `;
+    }
+
+    function renderKeysPage() {
+        return `
+            <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+                <div>
+                    <h1 class="text-2xl font-bold">Gerenciar Chaves</h1>
+                    <p class="text-gray-400 text-sm">Visualize, crie e gerencie chaves de acesso</p>
+                </div>
+                <div class="flex gap-2">
+                    <button class="btn btn-primary" onclick="showModal('generateModal')"><i class="fas fa-plus mr-1"></i>Gerar</button>
+                    <button class="btn btn-ghost" onclick="refreshKeys()"><i class="fas fa-rotate mr-1"></i></button>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="flex flex-wrap gap-3 items-center">
+                    <input class="input max-w-xs" id="keySearch" placeholder="Buscar por chave, IP ou HWID..." oninput="debounceSearch()">
+                    <select class="input max-w-[140px]" id="statusFilter" onchange="refreshKeys()">
+                        <option value="">Todos</option>
+                        <option value="active">Ativas</option>
+                        <option value="expired">Expiradas</option>
+                        <option value="banned">Banidas</option>
+                        <option value="unused">Não Usadas</option>
+                    </select>
+                    <select class="input max-w-[140px]" id="planFilter" onchange="refreshKeys()">
+                        <option value="">Todos Planos</option>
+                        <option value="trial">Trial</option>
+                        <option value="monthly">Mensal</option>
+                        <option value="quarterly">Trimestral</option>
+                        <option value="lifetime">Vitalício</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card" style="padding:0;overflow-x:auto">
+                <table>
+                    <thead><tr>
+                        <th>Chave</th><th>Status</th><th>Plano</th><th>Expiração</th><th>HWID</th><th>IP</th><th>Criação</th><th>Ações</th>
+                    </tr></thead>
+                    <tbody id="keysTableBody">
+                        <tr><td colspan="8" class="text-center text-gray-500 py-8">Carregando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Generate Modal -->
+            <div class="modal-overlay" id="generateModal">
+                <div class="modal">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-bold">Gerar Chaves</h2>
+                        <button class="text-gray-400 hover:text-white" onclick="hideModal('generateModal')"><i class="fas fa-times"></i></button>
+                    </div>
+                    <form id="generateForm" class="space-y-4">
+                        <div>
+                            <label class="text-sm text-gray-400 mb-1 block">Plano</label>
+                            <select name="plan_type" class="input" required>
+                                <option value="trial">Trial (1 dia)</option>
+                                <option value="monthly" selected>Mensal (30 dias)</option>
+                                <option value="quarterly">Trimestral (90 dias)</option>
+                                <option value="lifetime">Vitalício</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray-400 mb-1 block">Duração (dias)</label>
+                            <input name="duration" type="number" class="input" value="30" min="1" max="36500" required>
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray-400 mb-1 block">Quantidade (max 100)</label>
+                            <input name="count" type="number" class="input" value="1" min="1" max="100" required>
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray-400 mb-1 block">Prefixo (opcional)</label>
+                            <input name="prefix" class="input" placeholder="Ex: PREMIUM" maxlength="10">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-full py-2.5">Gerar Chaves</button>
+                    </form>
+                </div>
+            </div>
+            <!-- Extend Modal -->
+            <div class="modal-overlay" id="extendModal">
+                <div class="modal">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-bold">Estender Chave</h2>
+                        <button class="text-gray-400 hover:text-white" onclick="hideModal('extendModal')"><i class="fas fa-times"></i></button>
+                    </div>
+                    <form id="extendForm" class="space-y-4">
+                        <input type="hidden" name="key" id="extendKeyInput">
+                        <p class="text-sm text-gray-400">Estendendo: <span id="extendKeyDisplay" class="text-white font-mono"></span></p>
+                        <div>
+                            <label class="text-sm text-gray-400 mb-1 block">Dias adicionais</label>
+                            <input name="days" type="number" class="input" value="30" min="1" max="3650" required>
+                        </div>
+                        <button type="submit" class="btn btn-success w-full py-2.5">Estender</button>
+                    </form>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderLogsPage() {
+        return `
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold">Logs de Autenticação</h1>
+                    <p class="text-gray-400 text-sm">Histórico completo de requisições</p>
+                </div>
+                <button class="btn btn-ghost btn-sm" onclick="refreshLogs()"><i class="fas fa-rotate mr-1"></i>Atualizar</button>
+            </div>
+            <div class="card" style="padding:0;overflow-x:auto">
+                <table>
+                    <thead><tr>
+                        <th>Data/Hora</th><th>Ação</th><th>Chave</th><th>HWID</th><th>IP</th><th>Status</th><th>Detalhes</th>
+                    </tr></thead>
+                    <tbody id="logsTableBody">
+                        <tr><td colspan="7" class="text-center text-gray-500 py-8">Carregando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    function renderSettingsPage() {
+        return `
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold">Configurações</h1>
+                    <p class="text-gray-400 text-sm">Gerenciar conta de administrador</p>
+                </div>
+            </div>
+            <div class="card max-w-lg">
+                <h2 class="text-lg font-semibold mb-4">Alterar Senha</h2>
+                <form id="changePasswordForm" class="space-y-4">
+                    <div>
+                        <label class="text-sm text-gray-400 mb-1 block">Senha Atual</label>
+                        <input name="currentPassword" type="password" class="input" required>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-400 mb-1 block">Nova Senha</label>
+                        <input name="newPassword" type="password" class="input" minlength="6" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Alterar Senha</button>
+                </form>
+            </div>
+        `;
+    }
+
+    function renderApp() {
+        const app = document.getElementById('app');
+        if (!token) { app.innerHTML = renderLoginPage(); bindLogin(); return; }
+
+        app.innerHTML = `
+            ${renderSidebar()}
+            <div class="main">
+                <button class="md:hidden mb-4 btn btn-ghost btn-sm" onclick="document.getElementById('sidebar').classList.toggle('open')">
+                    <i class="fas fa-bars mr-1"></i> Menu
+                </button>
+                <div id="pageContent"></div>
+            </div>
+        `;
+
+        renderCurrentPage();
+    }
+
+    function renderCurrentPage() {
+        const container = document.getElementById('pageContent');
+        switch (currentPage) {
+            case 'dashboard': container.innerHTML = renderDashboard(); refreshDashboard(); break;
+            case 'keys': container.innerHTML = renderKeysPage(); refreshKeys(); bindGenerateForm(); bindExtendForm(); break;
+            case 'logs': container.innerHTML = renderLogsPage(); refreshLogs(); break;
+            case 'settings': container.innerHTML = renderSettingsPage(); bindPasswordForm(); break;
+        }
+    }
+
+    async function refreshDashboard() {
+        try {
+            const stats = await apiCall('/admin/stats');
+            const labels = ['Total', 'Ativas', 'Expiradas', 'Banidas', 'Não Usadas', 'Sessões Ativas'];
+            const keys = ['total', 'active', 'expired', 'banned', 'unused', 'activeSessions'];
+            const icons = ['fa-box', 'fa-check-circle', 'fa-clock', 'fa-ban', 'fa-box-open', 'fa-users'];
+            const colors = ['text-blue-400', 'text-green-400', 'text-yellow-400', 'text-red-400', 'text-gray-400', 'text-purple-400'];
+            document.getElementById('statsGrid').innerHTML = keys.map((k, i) => `
+                <div class="card">
+                    <div class="flex items-center gap-2 text-${colors[i].split('-')[1]}-400 mb-2">
+                        <i class="fas ${icons[i]}"></i>
+                        <span class="text-xs text-gray-400">${labels[i]}</span>
+                    </div>
+                    <div class="stat-value ${colors[i]}">${stats[k]}</div>
+                </div>
+            `).join('');
+            const logs = await apiCall('/admin/logs/recent?minutes=60');
+            document.getElementById('recentLogs').innerHTML = logs.length === 0
+                ? '<p class="text-gray-500 text-sm">Nenhum log recente</p>'
+                : '<div style="max-height:300px;overflow-y:auto">' + logs.slice(0, 20).map(log => `
+                    <div class="flex items-center justify-between py-2 border-b border-dark-200/50 text-sm">
+                        <span class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full ${log.status === 'success' ? 'bg-green-400' : log.status === 'blocked' ? 'bg-red-400' : 'bg-yellow-400'}"></span>
+                            <span class="text-gray-300">${log.action}</span>
+                        </span>
+                        <span class="text-gray-500 text-xs">${truncate(log.key_used, 12)}</span>
+                        <span class="text-gray-500 text-xs">${formatDate(log.timestamp)}</span>
+                    </div>
+                `).join('') + '</div>';
+        } catch (e) { toast('Erro ao carregar dashboard', 'error'); }
+    }
+
+    let searchTimeout;
+    function debounceSearch() { clearTimeout(searchTimeout); searchTimeout = setTimeout(refreshKeys, 400); }
+
+    async function refreshKeys() {
+        const tbody = document.getElementById('keysTableBody');
+        if (!tbody) return;
+        try {
+            const search = document.getElementById('keySearch')?.value || '';
+            const status = document.getElementById('statusFilter')?.value || '';
+            const plan = document.getElementById('planFilter')?.value || '';
+            const params = new URLSearchParams({ limit: '200', search, status, plan_type: plan });
+            const data = await apiCall('/admin/keys?' + params.toString());
+            if (data.keys.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-gray-500 py-8">Nenhuma chave encontrada</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.keys.map(k => {
+                const tl = timeLeft(k.expires_at);
+                const statusBadge = { active: 'badge-active', expired: 'badge-expired', banned: 'badge-banned', unused: 'badge-unused' };
+                return `<tr>
+                    <td class="font-mono text-xs"><span class="copy-btn" onclick="copyToClipboard('${k.key_hash}')" title="Copiar hash">${truncate(k.key_hash, 20)}</span></td>
+                    <td><span class="badge ${statusBadge[k.status] || 'badge-unused'}">${k.status}</span></td>
+                    <td class="text-xs">${k.plan_type}</td>
+                    <td><span class="${tl.cls} text-xs">${tl.text}</span></td>
+                    <td class="font-mono text-xs">${truncate(k.hwid, 12)}</td>
+                    <td class="text-xs">${k.ip_address || '—'}</td>
+                    <td class="text-xs">${formatDate(k.created_at)}</td>
+                    <td>
+                        <div class="flex gap-1">
+                            <button class="btn btn-ghost btn-sm" onclick="copyToClipboard('${k.key_hash}')" title="Copiar Hash"><i class="fas fa-copy"></i></button>
+                            <button class="btn btn-warning btn-sm" onclick="openExtend('${k.key_hash}')" title="Estender"><i class="fas fa-clock"></i></button>
+                            ${k.hwid ? `<button class="btn btn-ghost btn-sm" onclick="resetHwidAction('${k.key_hash}')" title="Resetar HWID"><i class="fas fa-undo"></i></button>` : ''}
+                            ${k.status !== 'banned' ? `<button class="btn btn-danger btn-sm" onclick="banKeyAction('${k.key_hash}')" title="Banir"><i class="fas fa-ban"></i></button>` : ''}
+                            <button class="btn btn-danger btn-sm" onclick="deleteKeyAction('${k.key_hash}')" title="Deletar"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        } catch (e) { toast('Erro ao carregar chaves', 'error'); }
+    }
+
+    function openExtend(keyHash) {
+        document.getElementById('extendKeyInput').value = keyHash;
+        document.getElementById('extendKeyDisplay').textContent = keyHash;
+        showModal('extendModal');
+    }
+
+    async function resetHwidAction(key) {
+        if (!confirm('Resetar HWID desta chave?')) return;
+        try { await apiCall('/admin/keys/reset-hwid', { method: 'POST', body: JSON.stringify({ key }) }); toast('HWID resetado', 'success'); refreshKeys(); }
+        catch (e) { toast('Erro', 'error'); }
+    }
+
+    async function banKeyAction(key) {
+        if (!confirm('Banir esta chave?')) return;
+        try { await apiCall('/admin/keys/ban', { method: 'POST', body: JSON.stringify({ key }) }); toast('Chave banida', 'success'); refreshKeys(); }
+        catch (e) { toast('Erro', 'error'); }
+    }
+
+    async function deleteKeyAction(key) {
+        if (!confirm('Deletar permanentemente?')) return;
+        try { await apiCall('/admin/keys/delete', { method: 'POST', body: JSON.stringify({ key }) }); toast('Chave deletada', 'success'); refreshKeys(); }
+        catch (e) { toast('Erro', 'error'); }
+    }
+
+    async function refreshLogs() {
+        try {
+            const data = await apiCall('/admin/logs?limit=200');
+            const tbody = document.getElementById('logsTableBody');
+            if (!tbody) return;
+            if (data.logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500 py-8">Nenhum log encontrado</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.logs.map(log => `
+                <tr>
+                    <td class="text-xs">${formatDate(log.timestamp)}</td>
+                    <td><span class="badge badge-active">${log.action}</span></td>
+                    <td class="font-mono text-xs">${truncate(log.key_used, 16)}</td>
+                    <td class="font-mono text-xs">${truncate(log.hwid, 12)}</td>
+                    <td class="text-xs">${log.ip_address || '—'}</td>
+                    <td><span class="badge ${log.status === 'success' ? 'badge-active' : log.status === 'blocked' ? 'badge-banned' : 'badge-expired'}">${log.status}</span></td>
+                    <td class="text-xs text-gray-400">${log.details || '—'}</td>
+                </tr>
+            `).join('');
+        } catch (e) { toast('Erro ao carregar logs', 'error'); }
+    }
+
+    // ----- Form Binds -----
+    function bindLogin() {
+        const form = document.getElementById('loginForm');
+        if (!form) return;
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const fd = new FormData(form);
+            try { await login(fd.get('username'), fd.get('password')); toast('Login bem-sucedido', 'success'); }
+            catch (err) { toast(err.message || 'Credenciais inválidas', 'error'); }
+        };
+    }
+
+    function bindGenerateForm() {
+        const form = document.getElementById('generateForm');
+        if (!form) return;
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const fd = new FormData(form);
+            const body = { duration: parseInt(fd.get('duration')), plan_type: fd.get('plan_type'), count: parseInt(fd.get('count')), prefix: fd.get('prefix') || '' };
+            try {
+                const data = await apiCall('/admin/keys/generate', { method: 'POST', body: JSON.stringify(body) });
+                toast(`${data.count} chave(s) gerada(s)`, 'success');
+                hideModal('generateModal');
+                refreshKeys();
+            } catch (err) { toast(err.message, 'error'); }
+        };
+    }
+
+    function bindExtendForm() {
+        const form = document.getElementById('extendForm');
+        if (!form) return;
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const fd = new FormData(form);
+            const body = { key: fd.get('key'), days: parseInt(fd.get('days')) };
+            try {
+                await apiCall('/admin/keys/extend', { method: 'POST', body: JSON.stringify(body) });
+                toast('Chave estendida', 'success');
+                hideModal('extendModal');
+                refreshKeys();
+            } catch (err) { toast(err.message, 'error'); }
+        };
+    }
+
+    function bindPasswordForm() {
+        const form = document.getElementById('changePasswordForm');
+        if (!form) return;
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const fd = new FormData(form);
+            try {
+                await apiCall('/admin/change-password', { method: 'POST', body: JSON.stringify({ currentPassword: fd.get('currentPassword'), newPassword: fd.get('newPassword') }) });
+                toast('Senha alterada com sucesso', 'success');
+                form.reset();
+            } catch (err) { toast(err.message, 'error'); }
+        };
+    }
+
+    // ----- Init -----
+    renderApp();
+    </script>
+</body>
+</html>
