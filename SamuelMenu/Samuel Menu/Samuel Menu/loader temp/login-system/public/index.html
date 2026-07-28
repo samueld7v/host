@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HyperX - Authentication</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="bg-orb a"></div>
+  <div class="bg-orb b"></div>
+  <canvas id="particles"></canvas>
+
+  <!-- Auth Screen -->
+  <div id="authScreen">
+    <div class="card">
+      <div class="logo">L</div>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="login">Login</button>
+        <button class="tab" data-tab="register">Register</button>
+        <button class="tab" data-tab="key">License</button>
+      </div>
+
+      <!-- Login Form -->
+      <form class="form" id="loginForm">
+        <div class="input-group">
+          <i class="fas fa-user"></i>
+          <input type="text" placeholder="Username" id="loginUser" autocomplete="username">
+        </div>
+        <div class="input-group">
+          <i class="fas fa-lock"></i>
+          <input type="password" placeholder="Password" id="loginPass" autocomplete="current-password">
+          <button class="toggle-pass" type="button" data-target="loginPass"><i class="fas fa-eye"></i></button>
+        </div>
+        <button class="btn" type="button" id="loginBtn">
+          <span class="btn-text">Sign In</span>
+          <div class="spinner"></div>
+        </button>
+        <div class="msg hidden" id="loginMsg"></div>
+      </form>
+
+      <!-- Register Form -->
+      <form class="form hidden" id="registerForm">
+        <div class="input-group">
+          <i class="fas fa-user"></i>
+          <input type="text" placeholder="Username" id="regUser" autocomplete="off">
+        </div>
+        <div class="input-group">
+          <i class="fas fa-lock"></i>
+          <input type="password" placeholder="Password" id="regPass" autocomplete="new-password">
+          <button class="toggle-pass" type="button" data-target="regPass"><i class="fas fa-eye"></i></button>
+        </div>
+        <div class="input-group">
+          <i class="fas fa-key"></i>
+          <input type="text" placeholder="License Key" id="regKey" autocomplete="off">
+        </div>
+        <button class="btn" type="button" id="registerBtn">
+          <span class="btn-text">Create Account</span>
+          <div class="spinner"></div>
+        </button>
+        <div class="msg hidden" id="registerMsg"></div>
+      </form>
+
+      <!-- License-only Form -->
+      <form class="form hidden" id="keyForm">
+        <div class="input-group">
+          <i class="fas fa-key"></i>
+          <input type="text" placeholder="Enter your license key" id="licenseInput" autocomplete="off">
+        </div>
+        <button class="btn" type="button" id="licenseBtn">
+          <span class="btn-text">Validate Key</span>
+          <div class="spinner"></div>
+        </button>
+        <div class="msg hidden" id="licenseMsg"></div>
+      </form>
+
+      <div class="footer-links">
+        <a href="#" id="hwidLink"><i class="fas fa-microchip"></i> Reset HWID</a>
+        <a href="#" id="supportLink"><i class="fas fa-life-ring"></i> Support</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Screen -->
+  <div id="dashScreen">
+    <div class="dash-card">
+      <div class="dash-top">
+        <div class="logo-sm">L</div>
+        <div class="user-info">
+          <span class="status-dot"></span>
+          <span id="dashUsername">User</span>
+          <span style="color:var(--text-muted);font-size:11px" id="dashLicense">-</span>
+        </div>
+        <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </div>
+      <div class="dash-body">
+        <div class="dash-sidebar">
+          <div class="nav-item active"><i class="fas fa-box"></i><span>Products</span></div>
+          <div class="nav-item"><i class="fas fa-user-circle"></i><span>Profile</span></div>
+          <div class="spacer"></div>
+          <div class="nav-item"><i class="fas fa-cog"></i><span>Settings</span></div>
+        </div>
+        <div class="dash-main" id="dashContent">
+          <div class="product-header">
+            <div class="product-icon"><i class="fas fa-gamepad"></i></div>
+            <div class="product-info">
+              <div class="name" id="productName">HyperX-External-FiveM</div>
+              <div class="status" id="productStatus">● Undetected</div>
+              <div class="meta">
+                <span id="productOwned">Owned: Yes</span>
+                <span id="productVersion">Version: 1.0.0-Alpha</span>
+              </div>
+            </div>
+          </div>
+          <div class="product-details">
+            <div class="detail-item"><div class="label">Subscription</div><div class="value" id="detailSub">Lifetime</div></div>
+            <div class="detail-item"><div class="label">Status</div><div class="value" id="detailStatus" style="color:#22c55e">Active</div></div>
+            <div class="detail-item"><div class="label">HWID Lock</div><div class="value" id="detailHwid">-</div></div>
+            <div class="detail-item"><div class="label">Last Login</div><div class="value" id="detailLastLogin">-</div></div>
+          </div>
+          <div class="dash-actions">
+            <button class="action-btn primary" id="injectBtn"><i class="fas fa-rocket"></i> Inject</button>
+            <button class="action-btn secondary" id="bypassBtn"><i class="fas fa-shield"></i> Bypass</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/script.js"></script>
+</body>
+</html>

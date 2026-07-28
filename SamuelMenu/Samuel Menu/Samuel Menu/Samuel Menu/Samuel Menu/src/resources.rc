@@ -1,0 +1,3 @@
+#include "resource.h"
+
+// IDI_MAIN_ICON ICON "main.ico" // Commented out due to invalid format (it's actually a PNG)

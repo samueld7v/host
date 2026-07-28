@@ -1,0 +1,915 @@
+======================================================================
+  ANALISE COMPLETA DO PROJETO HYPERX - FiveM External Cheat Menu
+  Gerado em: Julho 2026
+======================================================================
+
+INDICE:
+  1. ESTRUTURA ATUAL DO PROJETO
+  2. DESIGN / UI (15 ideias)
+  3. COMBAT - Aimbot / Trigger / Silent (14 ideias)
+  4. VISUALS - ESP (24 ideias)
+  5. LOCAL / MISC - Player (20 ideias)
+  6. VEHICLE (20 ideias)
+  7. WORLD (18 ideias)
+  8. EXPLOITS (24 ideias)
+  9. SETTINGS / GENERAL (15 ideias)
+  10. TECNICAL / ESTRUTURAL (10 ideias)
+  TOTAL: ~160 ideias
+
+======================================================================
+  1. ESTRUTURA ATUAL DO PROJETO
+======================================================================
+
+ARQUITETURA:
+- Linguagem: C++ (External Cheat)
+- Framework UI: ImGui + DirectX 11
+- Game: Grand Theft Auto V / FiveM
+- Auth: KeyAuth (key + HWID)
+- Security: XOR strings, AntiCrack
+- Config: JSON (nlohmann) saved to C:\HyperX\Configs\
+
+PAGINAS ATUAIS (9 abas):
+  1. Combat (Legitbot) - Aimbot, Triggerbot, Silent Aim
+  2. Visuals (Visual) - Player ESP, Vehicle ESP, Colors, Preview
+  3. Local (Misc) - Player mods, Vehicle mods, Weapons, Teleports, Resources
+  4. World - Player list, Vehicle list, Actions
+  5. Exploits - Weapon spawner (completo), Resources
+  6. Settings (Config) - Misc ESP, Menu settings, Config system
+  7. Resoucer - Resource management com search
+  8. Teste - Simple weapon spawn test
+  9. Login - KeyAuth login screen + product selection
+
+FEATURES JA IMPLEMENTADAS (~60+):
+  - Aimbot (FOV, smooth, visible check, prediction)
+  - Triggerbot (smart trigger, delay, FOV)
+  - Silent Aim (magic bullets, miss chance)
+  - Player ESP (box, skeleton, health, armor, name, weapon, snaplines, head circle, china hat, distance, admin list, invisible warning, etc.)
+  - Vehicle ESP (name, distance, lock status, snaplines)
+  - Crosshair (dot, plus, X - color/size/thickness)
+  - Watermark (com logo)
+  - NoClip (server/client/invisible modes, hold mode, speed)
+  - Freecam (movimento WASD, menu de opcoes na tela)
+  - God Mode (com keybind)
+  - Anti HeadShot
+  - Anti Aim (disable lockon)
+  - No RagDoll
+  - Super Jump, Beast Jump
+  - Fast Run (speed slider ate 100x)
+  - Infinite Stamina
+  - Infinite Combat Roll
+  - Shrink mode
+  - No Recoil / No Spread
+  - Infinite Ammo / No Reload
+  - Explosive Fist / Double Shot / Fire Ammo
+  - Weapon Size changer (1x a 10x)
+  - Spinbot / Combat Glitch
+  - Fake Lag (configuravel)
+  - Vehicle GodMode
+  - Seat Belt
+  - Jumping Car / Car Planing
+  - Psychic Gun (forca ajustavel)
+  - Rocket Boost / Buzina Boost
+  - Change Vehicle Color / Rainbow Car
+  - Modify Handling (acceleration, brake, traction)
+  - Fix Vehicle / Break Wheels (shellcode injection)
+  - Teleport to Waypoint / Locations presets
+  - Peek Assist (salvar/teleportar posicao)
+  - Spectate Player
+  - Copy Outfit
+  - Pull Player / Kill Player
+  - Pull Vehicle / Teleport to Vehicle
+  - Vehicle Lock/Unlock
+  - Rain Vehicles (chuva de veiculos)
+  - Weather Control (15 tipos)
+  - Solo Session
+  - Invisible Local
+  - Unlock All Actions
+  - Camera FOV adjustment
+  - Player List + Vehicle List
+  - Weapon Spawner (80+ armas com imagens)
+  - Resource Management (list, stop, destroy, dump)
+  - Config Save/Load/Delete (nome personalizado)
+  - Stream Proof (WDA_EXCLUDEFROMCAPTURE)
+  - V-Sync toggle
+  - Second Monitor
+  - Particles background
+  - Animated red wave background
+  - Search bar na header (navegacao por texto)
+  - Profile bar (avatar, username, role)
+  - Config popups (gear icon)
+  - Tooltips com icons
+  - FontAwesome icons
+  - Multi-font support (Normal, Big, Small, Minecraft, HyperX, FontAwesome)
+
+======================================================================
+  2. DESIGN / UI (15 ideias de melhorias visuais)
+======================================================================
+
+ 01 | Tema customizavel completo
+     - Alternar entre Dark, Light, RGB dinamico, presets de cores
+     - Salvar tema nas configs
+    
+ 02 | Animacoes de transicao melhores
+     - Slide horizontal/fade entre abas
+     - Efeito de "flip" ou "zoom" ao trocar
+    
+ 03 | Sidebar animada com icons
+     - Barra lateral com icones grandes e tooltips
+     - Indicador animado da aba ativa (glow / underline)
+    
+ 04 | Notifications 2.0 (sistema moderno)
+     - Empilhamento vertical com auto-remocao
+     - Cores por tipo: sucesso (verde), erro (vermelho), info (azul), warning (amarelo)
+     - Icones e botoes de fechar
+     - Slide-in da direita com easing
+    
+ 05 | Watermark totalmente customizavel
+     - Posicao: 4 cantos + centro
+     - Cor, opacidade, tamanho da fonte
+     - Mostrar/ocultar: FPS, horario, nome do usuario, versao
+    
+ 06 | Player Preview 3D avancado
+     - Rotacao automatica / manual (arrastar)
+     - Zoom com scroll
+     - Mostrar skeleton no preview
+     - Trocar outfit virtualmente
+    
+ 07 | Particulas customizaveis
+     - Cores (primaria + secundaria)
+     - Quantidade, velocidade, tamanho
+     - Tipo: bolhas, estrelas, linhas, circulos
+    
+ 08 | Background image upload
+     - Permitir imagem de fundo (PNG/JPG via D3D)
+     - Opacidade ajustavel
+     - Borrao (blur) no background
+    
+ 09 | Tooltips enriquecidos
+     - Ja existe, mas adicionar: nome da hotkey atual, descricao detalhada
+     - Preview da feature (ex: mostrar cor selecionada)
+    
+ 10 | Gradientes editaveis pelo usuario
+     - Input de cores primaria/secundaria/terciaria
+     - Preview em tempo real
+    
+ 11 | Drag & drop para reordenar abas
+     - Arrastar abas para mudar ordem
+     - Salvar ordem nas configs
+    
+ 12 | Progress bars / Sliders animados
+     - Sliders com efeito gradiente preenchimento
+     - Mostrar valor numerico com easing
+    
+ 13 | Mini Radar integrado ao menu
+     - Radar 2D dentro de uma child window
+     - Mostrar jogadores ao redor com direcao
+    
+ 14 | Global search melhorado
+     - Destacar termo buscado em amarelo
+     - Preview do resultado com descricao
+     - Historico de buscas recentes
+    
+ 15 | Modo compacto / responsive
+     - Layout adaptavel para 720p / 1080p / 1440p
+     - Opcao "Compact Mode" que reduz padding e fontes
+
+======================================================================
+  3. COMBAT - Aimbot / Trigger / Silent Aim (14 ideias)
+======================================================================
+
+ 01 | Target Selection avancado
+     - Prioridade: Distancia | Crosshair | Menor HP | Maior HP | FOV
+     - Ordenacao: Nearest, Lowest HP, Highest Threat
+    
+ 02 | Hitbox Selector (selecao de osso)
+     - Head, Neck, Chest, Pelvis, Legs, Feet
+     - Multi-hitbox (ex: Head + Chest)
+     - Visual bone selection (diagrama do corpo)
+    
+ 03 | Auto Shoot / Rage Mode
+     - Atirar automaticamente quando no alvo
+     - Shoot delay configravel
+     - Burst mode (X tiros, pausa)
+    
+ 04 | Hitchance System
+     - So atirar se chance de acerto > N%
+     - Simulacao de spread + recoil para calcular
+     - Ideal para servidores com detection
+    
+ 05 | Damage Override
+     - Forcar dano minimo por tiro (ex: 100 de dano sempre)
+     - Funciona via NOP ou patch de memoria
+    
+ 06 | Aim Prediction aprimorado
+     - Ja existe flag, mas adicionar lag compensation
+     - Predicao baseada em velocidade + distancia
+    
+ 07 | Visibility Check avançado
+     - Raycast custom via memoria
+     - Multi-ray (cabeca, peito, pernas)
+     - Visible color vs Invisible color no ESP
+    
+ 08 | Triggerbot Hitbox Specific
+     - So trigger se mira estiver na head / chest / etc
+     - Delay especifico por hitbox
+    
+ 09 | Triggerbot Hold / Toggle Mode
+     - Hold: segurar tecla para trigger
+     - Toggle: liga/desliga com clique
+    
+ 10 | Aim Lock / No Smooth
+     - Lock instantaneo no alvo (sem smooth)
+     - Ideal para rage mode
+    
+ 11 | Anti-Aim Resolver
+     - Detectar padroes de anti-aim
+     - Ajustar aim para counterar
+    
+ 12 | Smooth Aim Curves
+     - Linear, Exponential, Custom bezier
+     - Diferentes curvas para X e Y
+    
+ 13 | Reaction Time Simulation
+     - Tempo de reacao humano (100ms - 500ms)
+     - Evita deteccao por pattern de aim
+    
+ 14 | Bone Preview no ESP
+     - Mostrar qual osso esta sendo mirado atualmente
+     - Texto na tela: "Aiming: Head"
+
+======================================================================
+  4. VISUALS - ESP (24 ideias)
+======================================================================
+
+ 01 | Glow ESP
+     - Efeito glow (outline brilhante) nos jogadores
+     - Cor separada para visible/invisible
+     - Intensidade ajustavel
+    
+ 02 | Chams (Changed Models)
+     - Overlay de cor/textura nos modelos 3D
+     - Flat, Wireframe, Textured, Glow
+     - Cor por time/visible
+    
+ 03 | Radar 2D no canto da tela
+     - Mini-mapa com posicao dos jogadores
+     - Zoom, tamanho, opacidade
+     - Setas indicando direcao do jogador
+    
+ 04 | Item / Pickup ESP
+     - Armas no chao, dinheiro, drogas, municao
+     - Nome, distancia, cor por raridade
+     - Filtro: mostrar apenas armas / dinheiro / tudo
+    
+ 05 | Loot / Chest ESP
+     - Baús, cofres, malas
+     - Mostrar conteudo (se possivel)
+     - Distancia minima
+    
+ 06 | Ammo Display na Tela
+     - Mostrar municao atual / total
+     - Arma equipada com nome
+     - Posicao customizavel
+    
+ 07 | Killfeed (Log de abates)
+     - "Player1 [AK-47] Player2"
+     - Timestamp, distancia
+     - Maximo de entradas (5, 10, 20)
+    
+ 08 | Bullet Tracers
+     - Linhas visiveis de onde as balas vieram
+     - Cor e opacidade ajustaveis
+     - Mostrar direcao (seta)
+    
+ 09 | Hit Marker
+     - Indicador visual no centro da tela
+     - Crosshair change: X vermelho ao acertar
+     - Diferente para headshot / kill
+    
+ 10 | Hit Sound
+     - Som ao acertar (arquivo .wav embutido)
+     - Som diferente para headshot
+     - Ping / Ding / Quake sounds
+    
+ 11 | Fullbright
+     - Iluminacao maxima (enxergar no escuro)
+     - Toggle rapido com keybind
+    
+ 12 | Night Vision
+     - Efeito esverdeado (like COD)
+     - Intensidade ajustavel
+    
+ 13 | Thermal Vision
+     - Jogadores em laranja/vermelho
+     - Fundo em tons de cinza/azul
+    
+ 14 | 3D Box ESP
+     - Caixa cubica rotacionada conforme o player
+     - Linhas 3D ao redor do bounding box
+    
+ 15 | Corner Box
+     - Caixa estilo "corners" (4 cantos)
+     - Minimalista, elegante
+     - Tamanho dos cantos ajustavel
+    
+ 16 | Skeleton Color Per Bone
+     - Cor diferente para cabeca, tronco, bracos, pernas
+     - Grossura por parte do corpo
+    
+ 17 | Team-Based Coloring
+     - Cor automatica baseada no time do jogador
+     - Requer leitura da network info
+    
+ 18 | Status Icons no ESP
+     - Icone de veiculo (se esta dirigindo)
+     - Icone de aiming (se esta mirando)
+     - Icone de dead / alive
+    
+ 19 | Spectator List
+     - Lista de quem esta te assistindo
+     - Atualizacao em tempo real
+     - "Nome esta spectando voce"
+    
+ 20 | Grenade / Projectile ESP
+     - Prever onde granadas vao cair
+     - Trajetoria com linha pontilhada
+     - Tempo ate explodir
+    
+ 21 | Vehicle ESP Detalhado
+     - Velocidade (km/h ou mph)
+     - Health / combustivel
+     - Status das portas (abertas/fechadas)
+     - Player dentro (nome)
+     - Modelo / nome
+    
+ 22 | NPC / Entity ESP
+     - Mostrar NPCs importantes (policia, guarda)
+     - Tipo: animal, civil, security
+    
+ 23 | Distance Units
+     - Escolher metros (m) ou pes (ft)
+     - Formato: "12.5m" ou "41ft"
+    
+ 24 | ESP Visibility Opacity
+     - Opacidade separada para:
+       - Visible: 100%
+       - Invisible (oculto): 50%
+       - Dead: 20%
+
+======================================================================
+  5. LOCAL / MISC - Player (20 ideias)
+======================================================================
+
+ 01 | Auto Heal
+     - Curar automaticamente quando vida < X%
+     - Delay entre curas
+     - Usar item de cura ou set health
+    
+ 02 | Auto Armor
+     - Repor armadura quando < X%
+     - Prioridade: comprar ou set
+    
+ 03 | Auto Respawn
+     - Respwn automatico ao morrer
+     - Delay configravel
+    
+ 04 | Damage Multiplier
+     - Multiplicar dano (2x, 5x, 10x, 100x)
+     - Funciona via patch de memoria ou write
+    
+ 05 | Melee Range
+     - Aumentar alcance de ataques corpo-a-corpo
+     - Socar a distancia
+    
+ 06 | Super Punch / Knockback
+     - Soco com knockback extremo
+     - Jogador vai voando
+    
+ 07 | Ragdoll Mode
+     - Dar ragdoll em qualquer acao (pular, atirar)
+     - Sempre ragdoll ao tomar dano
+    
+ 08 | Water Walk
+     - Andar sobre a agua (desativar colisao de agua)
+     - Velocidade normal na agua
+    
+ 09 | Infinite Oxygen
+     - Nao precisar respirar debaixo d'agua
+     - Patch no folego
+    
+ 10 | Infinite Special Ability
+     - Habilidade especial infinita (correr, voar)
+     - Sempre carregada
+    
+ 11 | Gravity Gun
+     - Puxar objetos/jogadores para perto
+     - Empurrar com forca ajustavel
+     - Requer raycast / teleport
+    
+ 12 | Rope Gun (Whip)
+     - Amarrar jogadores com "corda" visual
+     - Puxar amarrados
+    
+ 13 | Speed While Shooting
+     - Manter velocidade maxima mesmo atirando
+     - Sem slowdown ao levar dano
+    
+ 14 | Driveby Accuracy
+     - Precisao maxima em driveby (sem spread)
+     - Tiro perfeito de dentro do veiculo
+    
+ 15 | No Fall Damage
+     - Zero dano de queda
+     - Patch na funcao de fall damage
+    
+ 16 | Auto Climb
+     - Subir em superficies automaticamente
+     - Sem precisar apertar espaco
+    
+ 17 | Slide
+     - Deslizar em superficies inclinadas
+     - Like "Source engine slide"
+    
+ 18 | Crouch Mode
+     - Andar sempre agachado (hitbox menor)
+     - Toggle: normal / always crouch
+    
+ 19 | Always Sprint
+     - Correr sem cansar (max speed sempre)
+     - Diferente de infinite stamina (mais agressivo)
+    
+ 20 | Anti-Aim personalizado
+     - Diferentes modos: Jitter, Spin, Backward, Fake
+     - Pitch/Yaw customizaveis
+     - LBY breaker
+
+======================================================================
+  6. VEHICLE (20 ideias)
+======================================================================
+
+ 01 | Vehicle Spawner por nome
+     - Input de texto com autocomplete
+     - Spawnar qualquer veiculo do jogo
+     - Categoria: Carros, Motos, Avioes, Barcos, Helicopteros
+    
+ 02 | Vehicle Mods (Upgrades)
+     - Neon (cor + ligar/desligar)
+     - Turbo
+     - Suspensao (altura)
+     - Rodas (tipo + cor)
+     - Pintura (cor primaria + secundaria + metallic)
+     - Window Tint (5 niveis)
+     - Placa (texto personalizado)
+    
+ 03 | Vehicle Boost (Nitro)
+     - Multiplicador de velocidade
+     - Efeito visual (fogo / faisca)
+     - Recarga automatica
+    
+ 04 | Vehicle Fly Mode
+     - Veiculo voa (controles de aviao)
+     - Ativar/desativar com keybind
+     - Inclinar para frente/tras
+    
+ 05 | Vehicle God Mode melhorado
+     - Ja existe mas adicionar:
+     - Anti- colisao dano
+     - Anti-fire
+     - Anti-water damage
+    
+ 06 | Auto Repair
+     - Reparar veiculo quando health < X%
+     - Tambem consertar rodas furadas
+    
+ 07 | Flip Vehicle
+     - Virar veiculo de volta quando capotar
+     - Keybind
+    
+ 08 | Vehicle Push / Pull
+     - Empurrar veiculo na direcao da camera
+     - Puxar para perto de voce
+    
+ 09 | Delete Current Vehicle
+     - Remover veiculo atual do jogo
+     - Keybind para rapido
+    
+ 10 | Spawn Vehicle on Top
+     - Spawnar veiculo caindo do ceu na sua frente
+     - Efeito "rain vehicle" para um especifico
+    
+ 11 | Max Upgrade Vehicle
+     - Todos os mods no maximo em 1 clique
+     - Performance + visual
+    
+ 12 | Color Presets
+     - Salvar cores favoritas
+     - Aplicar rapido
+     - Paletas: Vermelho, Azul, Verde, Preto, Branco, Rainbow
+    
+ 13 | Tire Smoke Color
+     - Cor da fumaca dos pneus ao derrapar
+     - RGB picker
+    
+ 14 | Neon Color
+     - Cor da luz neon debaixo do veiculo
+     - Ligar/desligar
+    
+ 15 | License Plate Custom
+     - Texto personalizado (ate 8 caracteres)
+     - Cor da placa
+    
+ 16 | Air Suspension
+     - Altura da suspensao ajustavel (subir/descer)
+     - Modo "lowrider"
+    
+ 17 | Vehicle Horn Sound
+     - Trocar som da buzina
+     - Lista de sons disponiveis
+     - Loop / sequence
+    
+ 18 | Convertible Roof
+     - Abrir/fechar capota de conversiveis
+     - Keybind
+    
+ 19 | Door Control Individual
+     - Abrir/fechar cada porta separadamente
+     - Portas: Motorista, Passageiro, Traseira D, Traseira E, Capo, Porta-malas
+    
+ 20 | Vehicle Engine Control
+     - Ligar/desligar motor
+     - Controle remoto de veiculos proximos
+
+======================================================================
+  7. WORLD (18 ideias)
+======================================================================
+
+ 01 | Player List com Search + Filtros
+     - Input de busca por nome
+     - Filtros: Todos / Amigos / Inimigos / Time
+     - Ordenar por: Nome, Distancia, HP, Kills
+    
+ 02 | Player Info Expandido
+     - IP:Porta (se possivel)
+     - Health real + Armor
+     - Arma atual + municao
+     - Veiculo atual (modelo, placa, speed)
+     - Team / Organizacao
+    
+ 03 | Session Info Panel
+     - Nome do servidor
+     - Players online (count + max)
+     - Gamemode (RP, Deathmatch, Race)
+     - Ping aproximado
+     - Uptime (tempo conectado)
+    
+ 04 | Entity Spawner (Peds, Objetos, Veiculos)
+     - Spawnar qualquer entidade
+     - Categoria: Ped, Vehicle, Object
+     - Properties: invencivel, visivel, frozen
+    
+ 05 | Vehicle List com Info
+     - Player dentro (se tiver)
+     - Health + velocidade
+     - Modelo
+     - Distancia
+     - Cor
+    
+ 06 | Object / Pickup List
+     - Lista de objetos e pickups renderizados
+     - Nome, distancia, posicao
+     - Teleportar para objeto
+    
+ 07 | Map Teleport com Preview
+     - Mapa de Los Santos com marcadores
+     - Clicar no mapa para teleportar
+     - Coordenadas X, Y, Z exibidas
+    
+ 08 | Follow Player Automatico
+     - Selecionar player para seguir
+     - Teleportar continuamente para perto
+     - Distancia de seguimento configravel
+    
+ 09 | Bring All Players (TP全体)
+     - Teleportar todos os jogadores para voce
+     - Opcao: apenas amigos / todos
+    
+ 10 | Slap / Crash Player
+     - Slap: dar dano + knockback
+     - Crash: forcar crash no cliente do player
+     - Screen effects: tela preta, shake
+    
+ 11 | Freeze Player
+     - Congelar player no lugar (toggle)
+     - Descongelar ao desativar
+     - Efeito de "ice"
+    
+ 12 | Explode Player
+     - Explodir player selecionado
+     - Tipo de explosao: normal, incendio, gas, agua
+     - Raio da explosao
+    
+ 13 | Give Cash (se exploit disponivel)
+     - Dar dinheiro ao player ou a si mesmo
+     - Quantidade personalizada
+     - Requer funcao de give money
+    
+ 14 | Kick Player
+     - Kickar player da sessao
+     - Razao falsa (opcional)
+     - Via network event spoof
+    
+ 15 | Fake Report Player
+     - Enviar report falso contra player
+     - Categoria: Cheating, Griefing, Verbal
+    
+ 16 | Spectate Melhorado
+     - Overlay com info do alvo durante spectate
+     - Nome, health, arma, distancia
+     - Trocar de alvo com setas
+    
+ 17 | Coordinate Manager
+     - Salvar multiplas coordenadas com nomes
+     - Lista com botoes de teleport
+     - Importar/exportar coordenadas (JSON)
+    
+ 18 | Coordinate Teleport Manual
+     - Input de X, Y, Z
+     - Botoes: +10, +100, -10, -100
+     - Salvar como preset
+
+======================================================================
+  8. EXPLOITS (24 ideias)
+======================================================================
+
+ 01 | Transaction Error / Dupe Exploit
+     - Trigger de erro de transacao
+     - Duplicacao de itens (se funcionar na build)
+    
+ 02 | Blacklist Bypass
+     - Bypass de blacklist de servidores
+     - Spoof de identificacao
+    
+ 03 | Anti-Kick / Anti-Ban
+     - Protecao contra kick via eventos
+     - Bloqueio de ban de rede
+    
+ 04 | Chat Spammer
+     - Enviar mensagens automaticamente
+     - Delay entre mensagens
+     - Lista de frases pre-definidas
+    
+ 05 | Chat Commands Automatizados
+     - Executar comandos via chat (/me, /ad, etc.)
+     - Bind de comandos a teclas
+    
+ 06 | Lua Executor (para FiveM)
+     - Executar scripts Lua no ambiente FiveM
+     - Input de codigo com syntax highlight
+     - Historico de scripts executados
+    
+ 07 | Ped Model Changer
+     - Mudar modelo do personagem
+     - Lista de modelos populares
+     - Preview do modelo (se possivel)
+    
+ 08 | Skin / Outfit Saver
+     - Salvar outfit atual (drawable + texture)
+     - Carregar outfits salvos
+     - Compartilhar outfits (export JSON)
+    
+ 09 | Give Weapons Menu
+     - Ja existe weapon spawner
+     - Adicionar: Give para outro player
+     - Give all weapons (1 clique)
+    
+ 10 | Remove Weapons
+     - Remover todas as armas
+     - Remover arma especifica
+     - Remover municao
+    
+ 11 | Set Wanted Level
+     - Definir nivel de procura (0 a 5)
+     - Clear wanted (0)
+     - Never wanted (trava em 0)
+    
+ 12 | Disable Police
+     - Policia nao prende/ataca
+     - Nao gerar procurado por crimes
+     - Sem sirenes
+    
+ 13 | Infinite Parachute
+     - Para-quedas infinito (nao consome)
+     - Reabrir quantas vezes quiser
+    
+ 14 | Explosion Menu
+     - Criar explosao em qualquer lugar
+     - Tipo: Normal, Fire, Water, Gas, Steam
+     - Raio, dano, camera shake
+     - Na posicao do player / alvo / cursor
+    
+ 15 | Fire Creator
+     - Criar fogo em qualquer lugar
+     - Propagacao, duracao
+     - Queimar jogadores
+    
+ 16 | Water Gun
+     - Atirar agua (like fire truck)
+     - Alcance e forca ajustaveis
+    
+ 17 | Vehicle Weapons
+     - Armas montadas em veiculos (turret, machine gun)
+     - Atirar de dentro do veiculo com qualquer arma
+    
+ 18 | Force Field
+     - Campo de força ao redor do player
+     - Empurra inimigos, balas, veiculos
+     - Raio ajustavel
+    
+ 19 | Anti-Gravity Zone
+     - Zona de gravidade zero ao redor
+     - Objetos e players flutuam
+     - Raio ajustavel
+    
+ 20 | Safe Zone Attack
+     - Atacar dentro de safe zones
+     - Ignorar protecao de area segura
+    
+ 21 | Map / Location Unlock
+     - Forcar ir para Cayo Perico, North Yankton, etc
+     - Destravar areas bloqueadas
+    
+ 22 | Server Crash Exploit
+     - Crashear servidor (uso com cuidado!)
+     - Metodo: sync tree overflow / packet flood
+    
+ 23 | Solo Session Aprimorado
+     - Ja existe, mas melhorar:
+     - Migrar para servidor publico real
+     - Manter conexao com servidor mas isolar
+    
+ 24 | Spectate All Players
+     - Ciclar por todos os jogadores
+     - Modo "God mode spectate" (invisivel)
+
+======================================================================
+  9. SETTINGS / GENERAL (15 ideias)
+======================================================================
+
+ 01 | Multi-Language System
+     - Suporte a: Portugues, Ingles, Espanhol, Frances, Russo
+     - Arquivos de traducao (JSON)
+     - Troca em tempo real sem restart
+    
+ 02 | Config Auto-Load por Servidor
+     - Detectar nome/IP do servidor
+     - Carregar config automatica baseada no servidor
+     - Perfeito para servidores RP diferentes
+    
+ 03 | Config Import/Export
+     - Exportar config como string base64
+     - Compartilhar com amigos
+     - Importar via "paste" ou arquivo
+    
+ 04 | Config Presets
+     - Presets pre-definidos:
+       - "Legit" (config sutil)
+       - "Rage" (tudo agressivo)
+       - "Visual Only" (semi-legal)
+       - "RP Friendly" (minimo de cheat)
+    
+ 05 | GUI Scale (DPI Scaling)
+     - Escala: 75%, 100%, 125%, 150%, 200%
+     - Redimensiona fontes, padding, widgets
+     - Ideal para monitores 4K / 1440p
+    
+ 06 | Font Changer
+     - Lista de fontes disponiveis
+     - Preview ao vivo
+     - Tamnho da fonte customizavel
+    
+ 07 | Keybind Display / Manager
+     - Lista de todas as keybinds ativas
+     - Resolver conflitos
+     - Exportar keybinds
+    
+ 08 | Profile System (Multi-usuario)
+     - Logins diferentes no mesmo PC
+     - Configs separadas por usuario
+     - Troca rapida de profile
+    
+ 09 | Statistics Dashboard
+     - Tempo total de uso
+     - Kills / Deaths (tracked)
+     - Headshots / Accuracy
+     - Features mais usadas
+    
+ 10 | Unload Hotkey + Cleanup
+     - Tecla para descarregar (ex: END)
+     - Cleanup de threads, hooks, code caves
+     - Exit code (ja existe exit(0))
+    
+ 11 | OBS / Streaming Detection
+     - Detectar OBS, Streamlabs, XSplit
+     - Auto-hide ao detectar
+     - Whitelist de programas
+    
+ 12 | Second Monitor Melhorado
+     - Ja existe, mas adicionar:
+     - Redimensionar para monitor secundario
+     - Posicao automatica no centro do monitor 2
+    
+ 13 | Particles Type Selector
+     - Mais tipos: bubbles, stars, snow, fireflies, rain
+     - Velocidade, quantidade, cor customizavel
+    
+ 14 | Menu Unlock Animation
+     - Animacao ao abrir menu
+     - Slide de cima, fade in, scale up
+     - Duracao ajustavel
+    
+ 15 | Auto-Update Check
+     - Verificar versao mais nova ao logar
+     - Download automatico da nova versao
+     - Changelog display
+
+======================================================================
+  10. TECNICAL / ESTRUTURAL (10 ideias)
+======================================================================
+
+ 01 | Thread Pool Manager
+     - Gerenciar threads centralizadamente
+     - Evitar detach() em todo lugar
+     - Cleanup ao descarregar
+    
+ 02 | Logger System
+     - Logar eventos em arquivo .log
+     - Niveis: INFO, WARN, ERROR, DEBUG
+     - Timestamp + source location
+    
+ 03 | Config Versioning
+     - Numero de versao no config JSON
+     - Migrar configs antigas para nova versao
+     - Compatibilidade retrocedente
+    
+ 04 | Error Handling Robust
+     - Try-catch em operacoes de memoria
+     - Fallback para offsets nao encontrados
+     - Notify de erros via notification
+    
+ 05 | Code Refactor (MVC-like)
+     - Separar: UI (Gui/) / Logic (Features/) / Data (Config/)
+     - Widgets reutilizaveis em /Widgets
+     - Services para features com estado
+    
+ 06 | Memory Leak Detection
+     - Verificar code caves nao liberados
+     - Threads orphaned
+     - Handles nao fechados
+    
+ 07 | Lazy Initialization
+     - So iniciar threads/features quando ativadas
+     - Economia de recursos
+     - Inicio mais rapido do menu
+    
+ 08 | Obfuscation / Anti-Dump
+     - Melhorar ofuscacao de strings
+     - Control flow obfuscation
+     - Anti-debug / Anti-sandbox
+    
+ 09 | Pattern Scanning com Fallback
+     - Multiplas assinaturas para mesma funcao
+     - Fallback para builds antigas
+     - Cache de patterns escaneados
+    
+ 10 | Unit Tests (Testes)
+     - Testes para:
+       - Parsing de config JSON
+       - Conversao de cores
+       - Validacao de offsets
+       - Shellcode geracao
+
+======================================================================
+  RESUMO FINAL
+======================================================================
+
+ FORTALEZAS DO PROJETO:
+   - Base solida com ~60+ features funcionando
+   - Sistema de config completo (Save/Load/Delete)
+   - UI bonita com particulas, animated waves, transicoes
+   - Suporte a FontAwesome + multi-fontes
+   - Weapon spawner completo com imagens
+   - KeyAuth integrado com tela de login + produtos
+   - Sistema de resources (FiveM)
+   - Code caves e shellcode injection
+   - Multi-build support (1604 a 3258)
+
+ PRINCIPAIS LACUNAS:
+   1. Visuais: Glow, Chams, Radar, Item ESP, Hitmarkers, Tracers
+   2. Exploits: Lua executor, Chat commands, Entity spawner, Protecoes
+   3. Misc: Gravity gun, Vehicle spawner, Auto heal, Damage modifier
+   4. UI: Temas, Multi-language, GUI scale, Font changer
+   5. World: Map teleport, Entity list, Session info, Troll options
+
+ TOTAL DE IDEIAS NESTE DOCUMENTO: ~160
+
+======================================================================

@@ -16,11 +16,22 @@ class KeyManager {
         return crypto.createHash('sha256').update(key).digest('hex');
     }
     static generateKey(planType = 'monthly', prefix = '') {
-        const code = PLAN_CODES[planType] || 'MENSAL';
         if (prefix) {
-            const random = crypto.randomBytes(5).toString('hex').toUpperCase();
-            return `${prefix}-${random}`;
+            let key = '';
+            for (const ch of prefix) {
+                if (ch === '*') {
+                    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                    key += chars[crypto.randomInt(chars.length)];
+                } else {
+                    key += ch;
+                }
+            }
+            if (!prefix.includes('*')) {
+                key += '-' + randSegment(5);
+            }
+            return key;
         }
+        const code = PLAN_CODES[planType] || 'MENSAL';
         return `M-${code}-${randSegment()}-${randSegment()}-${randSegment()}-${randSegment()}`;
     }
     static async createKey({ duration = 30, planType = 'monthly', prefix = '', createdBy = 'system' }) {
