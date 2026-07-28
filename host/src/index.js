@@ -35,7 +35,7 @@ app.get('/api/server-time', (req, res) => {
     res.json({ serverTime: Date.now(), serverTimeISO: new Date().toISOString() });
 });
 
-const panelPath = path.join(__dirname, '..', '..', 'admin-panel');
+const panelPath = path.join(__dirname, '..', 'admin-panel');
 app.use('/panel', express.static(panelPath));
 app.get('/panel*', (req, res) => {
     res.sendFile(path.join(panelPath, 'index.html'));
