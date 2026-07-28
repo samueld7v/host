@@ -50,7 +50,7 @@ router.get('/keys', adminAuth, async (req, res) => {
             limit: parseInt(limit) || 200,
             offset: parseInt(offset) || 0
         });
-        const sanitized = keys.map(k => ({ ...k, key_hash: k.key_hash.substring(0, 16) + '...' }));
+        const sanitized = keys.map(k => ({ ...k, key_hash: k.key_raw || k.key_hash.substring(0, 16) + '...', key_display: k.key_raw || k.key_hash.substring(0, 16) + '...' }));
         res.json({ keys: sanitized, total: sanitized.length });
     } catch (err) {
         console.error('[KEYS_LIST]', err);

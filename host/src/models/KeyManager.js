@@ -2,23 +2,35 @@ const { pool } = require('../config/database');
 const crypto = require('crypto');
 const { KEY_STATUS } = require('../config/constants');
 
+const PLAN_CODES = { trial: 'TRIAL', monthly: 'MENSAL', quarterly: 'TRIMESTRAL', lifetime: 'VITALICIO' };
+
+function randSegment(len = 6) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let out = '';
+    for (let i = 0; i < len; i++) out += chars[crypto.randomInt(chars.length)];
+    return out;
+}
+
 class KeyManager {
     static hashKey(key) {
         return crypto.createHash('sha256').update(key).digest('hex');
     }
-    static generateKey(prefix = '', length = 5) {
-        const random = crypto.randomBytes(length).toString('hex').toUpperCase();
-        const prefixStr = prefix ? `${prefix}-` : '';
-        return `${prefixStr}${random}`;
+    static generateKey(planType = 'monthly', prefix = '') {
+        const code = PLAN_CODES[planType] || 'MENSAL';
+        if (prefix) {
+            const random = crypto.randomBytes(5).toString('hex').toUpperCase();
+            return `${prefix}-${random}`;
+        }
+        return `M-${code}-${randSegment()}-${randSegment()}-${randSegment()}-${randSegment()}`;
     }
     static async createKey({ duration = 30, planType = 'monthly', prefix = '', createdBy = 'system' }) {
-        const rawKey = this.generateKey(prefix);
+        const rawKey = this.generateKey(planType, prefix);
         const keyHash = this.hashKey(rawKey);
         const expiresAt = new Date(Date.now() + duration * 24 * 60 * 60 * 1000).toISOString();
         await pool.query(
-            `INSERT INTO keys (key_hash, key_prefix, duration, expires_at, status, plan_type, created_by)
-             VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-            [keyHash, prefix, duration, expiresAt, KEY_STATUS.UNUSED, planType, createdBy]
+            `INSERT INTO keys (key_hash, key_raw, key_prefix, duration, expires_at, status, plan_type, created_by)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+            [keyHash, rawKey, prefix, duration, expiresAt, KEY_STATUS.UNUSED, planType, createdBy]
         );
         return rawKey;
     }
@@ -28,13 +40,13 @@ class KeyManager {
         try {
             await client.query('BEGIN');
             for (let i = 0; i < count; i++) {
-                const rawKey = this.generateKey(prefix);
+                const rawKey = this.generateKey(planType, prefix);
                 const keyHash = this.hashKey(rawKey);
                 const expiresAt = new Date(Date.now() + duration * 24 * 60 * 60 * 1000).toISOString();
                 await client.query(
-                    `INSERT INTO keys (key_hash, key_prefix, duration, expires_at, status, plan_type, created_by)
-                     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-                    [keyHash, prefix, duration, expiresAt, KEY_STATUS.UNUSED, planType, createdBy]
+                    `INSERT INTO keys (key_hash, key_raw, key_prefix, duration, expires_at, status, plan_type, created_by)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+                    [keyHash, rawKey, prefix, duration, expiresAt, KEY_STATUS.UNUSED, planType, createdBy]
                 );
                 keys.push(rawKey);
             }
@@ -127,7 +139,7 @@ class KeyManager {
         if (filters.status) { query += ` AND status = $${paramIdx++}`; params.push(filters.status); }
         if (filters.plan_type) { query += ` AND plan_type = $${paramIdx++}`; params.push(filters.plan_type); }
         if (filters.search) {
-            query += ` AND (key_hash LIKE $${paramIdx} OR ip_address LIKE $${paramIdx} OR hwid LIKE $${paramIdx})`;
+            query += ` AND (key_raw LIKE $${paramIdx} OR key_hash LIKE $${paramIdx} OR ip_address LIKE $${paramIdx} OR hwid LIKE $${paramIdx})`;
             params.push(`%${filters.search}%`);
             paramIdx++;
         }

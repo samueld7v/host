@@ -17,6 +17,7 @@ async function initDatabase() {
             CREATE TABLE IF NOT EXISTS keys (
                 id SERIAL PRIMARY KEY,
                 key_hash TEXT NOT NULL UNIQUE,
+                key_raw TEXT DEFAULT '',
                 key_prefix TEXT DEFAULT '',
                 duration INTEGER NOT NULL DEFAULT 30,
                 created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -64,6 +65,7 @@ async function initDatabase() {
             );
         `);
 
+        await client.query(`ALTER TABLE keys ADD COLUMN IF NOT EXISTS key_raw TEXT DEFAULT ''`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_keys_status ON keys(status)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_keys_hwid ON keys(hwid)`);
         await client.query(`CREATE INDEX IF NOT EXISTS idx_keys_expires ON keys(expires_at)`);
@@ -80,12 +82,19 @@ async function initDatabase() {
 }
 
 async function seedDefaultAdmin(client) {
-    const { rows } = await client.query('SELECT id FROM admins WHERE username = $1', ['admin']);
+    const bcrypt = require('bcrypt');
+    const { rows } = await client.query('SELECT id FROM admins WHERE username = $1', ['samuel']);
     if (rows.length === 0) {
-        const bcrypt = require('bcrypt');
-        const hash = await bcrypt.hash('admin123', 12);
-        await client.query('INSERT INTO admins (username, password_hash) VALUES ($1, $2)', ['admin', hash]);
-        console.log('[DB] Default admin created (admin:admin123)');
+        const existing = await client.query('SELECT id FROM admins WHERE username = $1', ['admin']);
+        if (existing.rows.length > 0) {
+            const hash = await bcrypt.hash('samuel', 12);
+            await client.query('UPDATE admins SET username = $1, password_hash = $2 WHERE username = $3', ['samuel', hash, 'admin']);
+            console.log('[DB] Admin updated to samuel:samuel');
+        } else {
+            const hash = await bcrypt.hash('samuel', 12);
+            await client.query('INSERT INTO admins (username, password_hash) VALUES ($1, $2)', ['samuel', hash]);
+            console.log('[DB] Admin created (samuel:samuel)');
+        }
     }
 }
 

@@ -468,7 +468,7 @@
                 const tl = timeLeft(k.expires_at);
                 const statusBadge = { active: 'badge-active', expired: 'badge-expired', banned: 'badge-banned', unused: 'badge-unused' };
                 return `<tr>
-                    <td class="font-mono text-xs"><span class="copy-btn" onclick="copyToClipboard('${k.key_hash}')" title="Copiar hash">${truncate(k.key_hash, 20)}</span></td>
+                    <td class="font-mono text-xs max-w-[200px] truncate"><span class="copy-btn" onclick="copyToClipboard('${k.key_display}')" title="Copiar chave">${k.key_display}</span></td>
                     <td><span class="badge ${statusBadge[k.status] || 'badge-unused'}">${k.status}</span></td>
                     <td class="text-xs">${k.plan_type}</td>
                     <td><span class="${tl.cls} text-xs">${tl.text}</span></td>
@@ -477,11 +477,11 @@
                     <td class="text-xs">${formatDate(k.created_at)}</td>
                     <td>
                         <div class="flex gap-1">
-                            <button class="btn btn-ghost btn-sm" onclick="copyToClipboard('${k.key_hash}')" title="Copiar Hash"><i class="fas fa-copy"></i></button>
-                            <button class="btn btn-warning btn-sm" onclick="openExtend('${k.key_hash}')" title="Estender"><i class="fas fa-clock"></i></button>
-                            ${k.hwid ? `<button class="btn btn-ghost btn-sm" onclick="resetHwidAction('${k.key_hash}')" title="Resetar HWID"><i class="fas fa-undo"></i></button>` : ''}
-                            ${k.status !== 'banned' ? `<button class="btn btn-danger btn-sm" onclick="banKeyAction('${k.key_hash}')" title="Banir"><i class="fas fa-ban"></i></button>` : ''}
-                            <button class="btn btn-danger btn-sm" onclick="deleteKeyAction('${k.key_hash}')" title="Deletar"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-ghost btn-sm" onclick="copyToClipboard('${k.key_display}')" title="Copiar Chave"><i class="fas fa-copy"></i></button>
+                            <button class="btn btn-warning btn-sm" onclick="openExtend('${k.key_display}')" title="Estender"><i class="fas fa-clock"></i></button>
+                            ${k.hwid ? `<button class="btn btn-ghost btn-sm" onclick="resetHwidAction('${k.key_display}')" title="Resetar HWID"><i class="fas fa-undo"></i></button>` : ''}
+                            ${k.status !== 'banned' ? `<button class="btn btn-danger btn-sm" onclick="banKeyAction('${k.key_display}')" title="Banir"><i class="fas fa-ban"></i></button>` : ''}
+                            <button class="btn btn-danger btn-sm" onclick="deleteKeyAction('${k.key_display}')" title="Deletar"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>`;
